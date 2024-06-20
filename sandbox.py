@@ -4,7 +4,9 @@ from time import sleep
 import random
 pygame.init()
 pygame.display.init()
-
+pygame_icon = pygame.image.load('icon.png')
+pygame.display.set_icon(pygame_icon)
+pygame.display.set_caption("Sandbox")
 
 SIZE = 64
 SCREEN_SIZE = SIZE * 4
@@ -57,7 +59,9 @@ while running:
             if event.key == pygame.K_ESCAPE:
                 running = False
             else:
-                current_color = pygame.key.name(event.key)
+                key = pygame.key.name(event.key)
+                if key in "1234567":
+                    current_color = pygame.key.name(event.key)
     clock.tick(60)
     if pygame.mouse.get_pressed()[0]:
         draw(pygame.mouse.get_pos(),current_color)
