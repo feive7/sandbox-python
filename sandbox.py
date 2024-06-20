@@ -11,7 +11,7 @@ SCREEN_SIZE = SIZE * 4
 tile_size = SCREEN_SIZE//SIZE
 Map = np.zeros((SIZE,SIZE))
 screen = pygame.display.set_mode((SCREEN_SIZE,SCREEN_SIZE))
-color = ["Black","Red","Green","Blue","Cyan","Magenta","Yellow",(10,10,10)]
+color = ["Black","Red","Green","Blue","Cyan","Magenta","Yellow","White"]
 current_color = 1
 def draw_map():
     for x in range(SIZE):
