@@ -2,6 +2,7 @@ import pygame
 import numpy as np
 from time import sleep
 import random
+import colorsys
 pygame.init()
 pygame.display.init()
 pygame_icon = pygame.image.load('icon.png')
@@ -9,12 +10,15 @@ pygame.display.set_icon(pygame_icon)
 pygame.display.set_caption("Sandbox")
 
 SIZE = 64
-SCREEN_SIZE = SIZE * 4
+SCREEN_SIZE = SIZE * 8
 tile_size = SCREEN_SIZE//SIZE
 Map = np.zeros((SIZE,SIZE))
-screen = pygame.display.set_mode((SCREEN_SIZE,SCREEN_SIZE))
-color = ["Black","Red","Green","Blue","Cyan","Magenta","Yellow","White"]
-current_color = 1
+screen = pygame.display.set_mode((SCREEN_SIZE,SCREEN_SIZE+30))
+color = ["Black"]
+color += [np.multiply(colorsys.hsv_to_rgb(i/10, 1, 1),255) for i in range(0,10)]
+color += [(i,i,i) for i in range(255,33,-255//6)]
+pallette = color[1:len(color)]
+current_color = 0
 def draw_map():
     for x in range(SIZE):
         for y in range(SIZE):
@@ -33,40 +37,60 @@ def draw(cell,color):
         Map[tile_y][tile_x] = color
 def tick():
     global Map
-    buffer = np.zeros((SIZE,SIZE))
+    buffer = np.zeros((SIZE, SIZE))
+
     for x in range(SIZE):
         for y in range(SIZE):
-            if get_tile(x,y+1) and get_tile(x,y):
-                moves = []
-                if not get_tile(x+1,y+1):
-                    moves.append(1)
-                if not get_tile(x-1,y+1):
-                    moves.append(-1)
-                if len(moves) > 0:
-                    buffer[y+1][x+random.choice(moves)] = get_tile(x,y)
+            current_tile = get_tile(x, y)
+            if current_tile:
+                below = get_tile(x, y + 1)
+                if not below:
+                    buffer[y + 1][x] = current_tile
                 else:
-                    buffer[y][x] = get_tile(x,y)
-            elif get_tile(x,y-1):
-                buffer[y][x] = get_tile(x,y-1)
+                    moves = []
+                    left_below = get_tile(x - 1, y + 1)
+                    right_below = get_tile(x + 1, y + 1)
+                    if not right_below:
+                        moves.append(1)
+                    if not left_below:
+                        moves.append(-1)
+                    if moves:
+                        move = random.choice(moves)
+                        buffer[y + 1][x + move] = current_tile
+                    else:
+                        buffer[y][x] = current_tile
     Map = buffer
+def draw_menu():
+    pygame.draw.rect(screen, (100,100,100), (0, SCREEN_SIZE, SCREEN_SIZE, 30))
+    for i,c in enumerate(pallette):
+        pygame.draw.rect(screen, c, ((SCREEN_SIZE//len(pallette)) * i, SCREEN_SIZE + (5 * (i != current_color)), SCREEN_SIZE/len(pallette), 25))
 clock = pygame.time.Clock()
 running = True
+draw_menu()
+drawing = False
+def handle_mouse_down(pressed):
+    if pygame.mouse.get_pressed()[0]:
+        draw(pygame.mouse.get_pos(),current_color+1)
+    elif pygame.mouse.get_pressed()[2]:
+        draw(pygame.mouse.get_pos(),0)
+def handle_key_down(event):
+    if event.key == pygame.K_ESCAPE:
+        running = False
+    else:
+        key = event.key
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:
-                running = False
-            else:
-                key = pygame.key.name(event.key)
-                if key in "1234567":
-                    current_color = pygame.key.name(event.key)
+        elif event.type == pygame.KEYDOWN:
+            handle_key_down(event)
+        elif event.type == pygame.MOUSEWHEEL:
+            current_color = ((current_color - np.sign(event.y)) % len(pallette))
+            draw_menu()
     clock.tick(60)
-    if pygame.mouse.get_pressed()[0]:
-        draw(pygame.mouse.get_pos(),current_color)
-    elif pygame.mouse.get_pressed()[2]:
-        draw(pygame.mouse.get_pos(),0)
+    if pygame.mouse.get_pressed():
+        handle_mouse_down(pygame.mouse.get_pressed())
+    
     draw_map()
     pygame.display.update()
     tick()
