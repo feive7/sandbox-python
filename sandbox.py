@@ -98,6 +98,15 @@ def save_image():
     im = Image.fromarray(np.uint8(frame))
     im = im.resize((256,256),resample=Image.Resampling.NEAREST)
     im.save(str(downloads) + "\sand.png")
+
+# If any of the elements in the array are true
+def array_any(arr):
+    for x in arr:
+        if x:
+            return True
+
+    return False
+
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
