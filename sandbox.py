@@ -107,6 +107,14 @@ def array_any(arr):
 
     return False
 
+# If *all* of the elements in the array are true
+def array_true(arr):
+    for x in arr:
+        if not x:
+            return False
+
+    return True
+
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
