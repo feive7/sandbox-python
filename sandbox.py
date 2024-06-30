@@ -97,7 +97,7 @@ def save_image():
             frame[y][x] = color[get_tile(x,y)]
     im = Image.fromarray(np.uint8(frame))
     im = im.resize((256,256),resample=Image.Resampling.NEAREST)
-    im.save(str(downloads) + "\sand.png")
+    im.save(str(downloads) + "\\sand.png")
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
